@@ -1,4 +1,4 @@
-baseURL = 'http://example.org/'
+baseURL = 'https://steveicode.github.io/'
 languageCode = 'en-us'
 title = 'Steven Blog'
 theme = 'hugo-theme-cleanwhite'
@@ -12,7 +12,7 @@ theme = 'hugo-theme-cleanwhite'
   #sidebar_avatar = "img/avatar-zhaohuabing.jpg"      # use absolute URL, seeing it's used in both `/` and `/about/`
   sidebar_avatar = "img/danhuangcat.jpg"      # use absolute URL, seeing it's used in both `/` and `/about/`
 
-  featured_tags = true 
+  featured_tags = false
   featured_condition_size = 1 
 
   friends = false
@@ -46,10 +46,13 @@ theme = 'hugo-theme-cleanwhite'
   
   [[params.addtional_menus]]
   title =  "ARCHIVE"
-  href =  "/archive/"
+  href =  "/archive"
   [[params.addtional_menus]]
-  title =  "NOTES"
-  href =  "/notes/"
+  title =  "CODING"
+  href =  "/coding"
   [[params.addtional_menus]]
-  title =  "ABOUT"
-  href =  "/about/"
+  title =  "LIFE"
+  href =  "/life"
+  [[params.addtional_menus]]
+  title =  "POST"
+  href =  "/posts"
