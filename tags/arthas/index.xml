@@ -7,7 +7,7 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Sat, 09 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://steveicode.github.io/tags/arthas/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>Check Injected Value in Remotely Running  SpringBoot Application</title>
+        <title>Check Bean and Config in Remotely Running SpringBoot Application</title>
         <link>https://steveicode.github.io/p/check-injected-value-in-remotely-running-springboot-application/</link>
         <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
         
