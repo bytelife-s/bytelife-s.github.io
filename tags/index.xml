@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>Tags on ST Blog</title>
-        <link>https://steveicode.github.io/tags/</link>
-        <description>Recent content in Tags on ST Blog</description>
+        <title>Tags on ByteLife Blog</title>
+        <link>https://bytelife-s.github.io/tags/</link>
+        <description>Recent content in Tags on ByteLife Blog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 09 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://steveicode.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 09 Mar 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://bytelife-s.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Arthas</title>
-        <link>https://steveicode.github.io/tags/arthas/</link>
+        <link>https://bytelife-s.github.io/tags/arthas/</link>
         <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
         
-        <guid>https://steveicode.github.io/tags/arthas/</guid>
+        <guid>https://bytelife-s.github.io/tags/arthas/</guid>
         <description></description>
         </item>
         <item>
         <title>Java</title>
-        <link>https://steveicode.github.io/tags/java/</link>
+        <link>https://bytelife-s.github.io/tags/java/</link>
         <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
         
-        <guid>https://steveicode.github.io/tags/java/</guid>
+        <guid>https://bytelife-s.github.io/tags/java/</guid>
         <description></description>
         </item>
         <item>
         <title>SpringBoot</title>
-        <link>https://steveicode.github.io/tags/springboot/</link>
+        <link>https://bytelife-s.github.io/tags/springboot/</link>
         <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
         
-        <guid>https://steveicode.github.io/tags/springboot/</guid>
+        <guid>https://bytelife-s.github.io/tags/springboot/</guid>
         <description></description>
         </item>
         
