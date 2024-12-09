@@ -201,10 +201,17 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#1-env-setup">1. Env Setup</a></li>
-    <li><a href="#2-install-arthas">2. Install Arthas</a></li>
-    <li><a href="#3-check-the-target-service">3. Check the target service</a></li>
-    <li><a href="#4-more-usecase">4. More Usecase</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#debug">Debug</a>
+      <ol>
+        <li><a href="#env-setup">Env Setup</a></li>
+        <li><a href="#install-arthas">Install Arthas</a></li>
+        <li><a href="#check-the-target-service">Check the target service</a></li>
+        <li><a href="#more-usecase">More Usecase</a></li>
+      </ol>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#reference">Reference</a></li>
   </ol>
 </nav>
         </div>
@@ -284,12 +291,12 @@
     <section class="article-content">
     
     
-    <h1 id="problem">Problem
-</h1><p>In our recent work, we encountered a problem where we changed the secret in the vault and updated the way to retrieve it. This change didn&rsquo;t cause any issues during local testing, but problems arose after deploying to staging. We hope to check what is being used in remote environments so that we can determine whether there&rsquo;s an issue with our retrieval method or if there&rsquo;s a problem with the secret itself.</p>
+    <h2 id="problem">Problem
+</h2><p>In our recent work, we encountered a problem where we changed the secret in the vault and updated the way to retrieve it. This change didn&rsquo;t cause any issues during local testing, but problems arose after deploying to staging. We hope to check what is being used in remote environments so that we can determine whether there&rsquo;s an issue with our retrieval method or if there&rsquo;s a problem with the secret itself.</p>
 <p>This kind of issue is common in automated deployment environments because stg/prd usually involves a series of automatic injections and startup scripts. Therefore, this method helps us check conflicts between local and remote automated deployments.</p>
-<h1 id="debug">Debug
-</h1><h2 id="1-env-setup">1. Env Setup
-</h2><p>First, we create a demo service with a single endpoint and an injected value.</p>
+<h2 id="debug">Debug
+</h2><h3 id="env-setup">Env Setup
+</h3><p>First, we create a demo service with a single endpoint and an injected value.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -354,8 +361,8 @@
 </span></span><span class="line"><span class="cl">c64090609d8a   demo      &#34;java -jar app.jar&#34;   8 seconds ago   Up 7 seconds   0.0.0.0:8080-&gt;8080/tcp   charming_chatterjee
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="2-install-arthas">2. Install Arthas
-</h2><p><a class="link" href="https://github.com/alibaba/arthas"  target="_blank" rel="noopener"
+</div><h3 id="install-arthas">Install Arthas
+</h3><p><a class="link" href="https://github.com/alibaba/arthas"  target="_blank" rel="noopener"
     >Arthas</a> allows developers to troubleshoot production issues for Java applications without modifying code or restarting servers.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -391,8 +398,8 @@
 		data-flex-basis="433px"
 	
 ></p>
-<h2 id="3-check-the-target-service">3. Check the target service
-</h2><p>We need to locate the target service bean within the Spring Context. A simple method is to monitor the Spring bean, so we do not need to manually create a custom bean with ApplicationContextAware.</p>
+<h3 id="check-the-target-service">Check the target service
+</h3><p>We need to locate the target service bean within the Spring Context. A simple method is to monitor the Spring bean, so we do not need to manually create a custom bean with ApplicationContextAware.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -426,8 +433,8 @@
 ></p>
 <p>We&rsquo;ve noted that the injected value is 123, showing we can retrieve this value from the remote runtime.</p>
 <p>In our case, the service&rsquo;s injected value didn&rsquo;t meet our expectations. So we traced the problem to a conflict in retrieving this value from the automated deployment pipeline and have since resolved it.</p>
-<h2 id="4-more-usecase">4. More Usecase
-</h2><p>The above workflow has more applications. For instance, we can invoke the method in the bean to verify if the outcome is as expected.</p>
+<h3 id="more-usecase">More Usecase
+</h3><p>The above workflow has more applications. For instance, we can invoke the method in the bean to verify if the outcome is as expected.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -453,10 +460,10 @@
 </span></span><span class="line"><span class="cl">ognl -c &lt;index&gt; &#39;@com.xxx.SpringContexDemo@getApplicationContext()&#39;
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="summary">Summary
-</h1><p>This debugging workflow allows us to access the ApplicationContext in a remote environment, aiding online issue resolution. It&rsquo;s not just useful for verifying injected values; it can also help resolve more complex issues since we have access to the context and all its beans.</p>
-<h1 id="reference">Reference
-</h1><p><a class="link" href="https://github.com/alibaba/arthas"  target="_blank" rel="noopener"
+</div><h2 id="summary">Summary
+</h2><p>This debugging workflow allows us to access the ApplicationContext in a remote environment, aiding online issue resolution. It&rsquo;s not just useful for verifying injected values; it can also help resolve more complex issues since we have access to the context and all its beans.</p>
+<h2 id="reference">Reference
+</h2><p><a class="link" href="https://github.com/alibaba/arthas"  target="_blank" rel="noopener"
     >https://github.com/alibaba/arthas</a></p>
 <p><a class="link" href="https://github.com/alibaba/arthas/issues/482"  target="_blank" rel="noopener"
     >https://github.com/alibaba/arthas/issues/482</a></p>

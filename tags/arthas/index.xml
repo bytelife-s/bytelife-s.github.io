@@ -12,12 +12,12 @@
         <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
         
         <guid>https://bytelife-s.github.io/p/check-injected-value-in-remotely-running-springboot-application/</guid>
-        <description>&lt;h1 id=&#34;problem&#34;&gt;Problem
-&lt;/h1&gt;&lt;p&gt;In our recent work, we encountered a problem where we changed the secret in the vault and updated the way to retrieve it. This change didn&amp;rsquo;t cause any issues during local testing, but problems arose after deploying to staging. We hope to check what is being used in remote environments so that we can determine whether there&amp;rsquo;s an issue with our retrieval method or if there&amp;rsquo;s a problem with the secret itself.&lt;/p&gt;
+        <description>&lt;h2 id=&#34;problem&#34;&gt;Problem
+&lt;/h2&gt;&lt;p&gt;In our recent work, we encountered a problem where we changed the secret in the vault and updated the way to retrieve it. This change didn&amp;rsquo;t cause any issues during local testing, but problems arose after deploying to staging. We hope to check what is being used in remote environments so that we can determine whether there&amp;rsquo;s an issue with our retrieval method or if there&amp;rsquo;s a problem with the secret itself.&lt;/p&gt;
 &lt;p&gt;This kind of issue is common in automated deployment environments because stg/prd usually involves a series of automatic injections and startup scripts. Therefore, this method helps us check conflicts between local and remote automated deployments.&lt;/p&gt;
-&lt;h1 id=&#34;debug&#34;&gt;Debug
-&lt;/h1&gt;&lt;h2 id=&#34;1-env-setup&#34;&gt;1. Env Setup
-&lt;/h2&gt;&lt;p&gt;First, we create a demo service with a single endpoint and an injected value.&lt;/p&gt;
+&lt;h2 id=&#34;debug&#34;&gt;Debug
+&lt;/h2&gt;&lt;h3 id=&#34;env-setup&#34;&gt;Env Setup
+&lt;/h3&gt;&lt;p&gt;First, we create a demo service with a single endpoint and an injected value.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -82,8 +82,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;c64090609d8a   demo      &amp;#34;java -jar app.jar&amp;#34;   8 seconds ago   Up 7 seconds   0.0.0.0:8080-&amp;gt;8080/tcp   charming_chatterjee
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;2-install-arthas&#34;&gt;2. Install Arthas
-&lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/arthas&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;install-arthas&#34;&gt;Install Arthas
+&lt;/h3&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/arthas&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Arthas&lt;/a&gt; allows developers to troubleshoot production issues for Java applications without modifying code or restarting servers.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -119,8 +119,8 @@
 		data-flex-basis=&#34;433px&#34;
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;3-check-the-target-service&#34;&gt;3. Check the target service
-&lt;/h2&gt;&lt;p&gt;We need to locate the target service bean within the Spring Context. A simple method is to monitor the Spring bean, so we do not need to manually create a custom bean with ApplicationContextAware.&lt;/p&gt;
+&lt;h3 id=&#34;check-the-target-service&#34;&gt;Check the target service
+&lt;/h3&gt;&lt;p&gt;We need to locate the target service bean within the Spring Context. A simple method is to monitor the Spring bean, so we do not need to manually create a custom bean with ApplicationContextAware.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -154,8 +154,8 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;We&amp;rsquo;ve noted that the injected value is 123, showing we can retrieve this value from the remote runtime.&lt;/p&gt;
 &lt;p&gt;In our case, the service&amp;rsquo;s injected value didn&amp;rsquo;t meet our expectations. So we traced the problem to a conflict in retrieving this value from the automated deployment pipeline and have since resolved it.&lt;/p&gt;
-&lt;h2 id=&#34;4-more-usecase&#34;&gt;4. More Usecase
-&lt;/h2&gt;&lt;p&gt;The above workflow has more applications. For instance, we can invoke the method in the bean to verify if the outcome is as expected.&lt;/p&gt;
+&lt;h3 id=&#34;more-usecase&#34;&gt;More Usecase
+&lt;/h3&gt;&lt;p&gt;The above workflow has more applications. For instance, we can invoke the method in the bean to verify if the outcome is as expected.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -181,10 +181,10 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ognl -c &amp;lt;index&amp;gt; &amp;#39;@com.xxx.SpringContexDemo@getApplicationContext()&amp;#39;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h1 id=&#34;summary&#34;&gt;Summary
-&lt;/h1&gt;&lt;p&gt;This debugging workflow allows us to access the ApplicationContext in a remote environment, aiding online issue resolution. It&amp;rsquo;s not just useful for verifying injected values; it can also help resolve more complex issues since we have access to the context and all its beans.&lt;/p&gt;
-&lt;h1 id=&#34;reference&#34;&gt;Reference
-&lt;/h1&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/arthas&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h2 id=&#34;summary&#34;&gt;Summary
+&lt;/h2&gt;&lt;p&gt;This debugging workflow allows us to access the ApplicationContext in a remote environment, aiding online issue resolution. It&amp;rsquo;s not just useful for verifying injected values; it can also help resolve more complex issues since we have access to the context and all its beans.&lt;/p&gt;
+&lt;h2 id=&#34;reference&#34;&gt;Reference
+&lt;/h2&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/arthas&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://github.com/alibaba/arthas&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/alibaba/arthas/issues/482&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://github.com/alibaba/arthas/issues/482&lt;/a&gt;&lt;/p&gt;
