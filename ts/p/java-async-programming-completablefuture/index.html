@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Background CompletableFuture was introduced as a Java 8 and is helpful for asynchronous programming. It allows developers to write non-blocking code and execute tasks in parallel. However, it can be challenging to understand how to use CompletableFuture effectively. This post will provide a comprehensive guide to using CompletableFuture in Java.\nCreate CompletableFuture The supplyAsync method is used to create a CompletableFuture that returns a value, while the runAsync method is used to create a CompletableFuture that does not return a value. 1 2 3 4 5 6 7 public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier){..} public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier,Executor executor){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable,Executor executor){..} Get Result The get method is used to retrieve the result of a CompletableFuture. It is a blocking call that waits for the result to be available.\n">
+<title>Java Async Programming - CompletableFuture</title>
+
+<link rel='canonical' href='https://bytelife-s.github.io/p/java-async-programming-completablefuture/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Java Async Programming - CompletableFuture">
+<meta property='og:description' content="Background CompletableFuture was introduced as a Java 8 and is helpful for asynchronous programming. It allows developers to write non-blocking code and execute tasks in parallel. However, it can be challenging to understand how to use CompletableFuture effectively. This post will provide a comprehensive guide to using CompletableFuture in Java.\nCreate CompletableFuture The supplyAsync method is used to create a CompletableFuture that returns a value, while the runAsync method is used to create a CompletableFuture that does not return a value. 1 2 3 4 5 6 7 public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier){..} public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier,Executor executor){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable,Executor executor){..} Get Result The get method is used to retrieve the result of a CompletableFuture. It is a blocking call that waits for the result to be available.\n">
+<meta property='og:url' content='https://bytelife-s.github.io/p/java-async-programming-completablefuture/'>
+<meta property='og:site_name' content='ByteLife Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Java' /><meta property='article:tag' content='Async' /><meta property='article:published_time' content='2024-12-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-12-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Java Async Programming - CompletableFuture">
+<meta name="twitter:description" content="Background CompletableFuture was introduced as a Java 8 and is helpful for asynchronous programming. It allows developers to write non-blocking code and execute tasks in parallel. However, it can be challenging to understand how to use CompletableFuture effectively. This post will provide a comprehensive guide to using CompletableFuture in Java.\nCreate CompletableFuture The supplyAsync method is used to create a CompletableFuture that returns a value, while the runAsync method is used to create a CompletableFuture that does not return a value. 1 2 3 4 5 6 7 public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier){..} public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier,Executor executor){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable){..} public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable,Executor executor){..} Get Result The get method is used to retrieve the result of a CompletableFuture. It is a blocking call that waits for the result to be available.\n">
+    <link rel="shortcut icon" href="/favicon.png" />
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-EF57CVSXQT"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-EF57CVSXQT');
+        }
+      </script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/danhuangcat_hu3803285951708884171.jpg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">ByteLife Blog</a></h1>
+            <h2 class="site-description">Byte Life</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#background">Background</a></li>
+    <li><a href="#create-completablefuture">Create CompletableFuture</a></li>
+    <li><a href="#get-result">Get Result</a></li>
+    <li><a href="#callback">Callback</a>
+      <ol>
+        <li><a href="#thenrunthenrunasync">thenRun/thenRunAsync</a></li>
+        <li><a href="#thenacceptthenacceptasync">thenAccept/thenAcceptAsync</a></li>
+        <li><a href="#thenapplythenapplyasync">thenApply/thenApplyAsync</a></li>
+        <li><a href="#thencomposethencomposeasync">thenCompose/thenComposeAsync</a></li>
+      </ol>
+    </li>
+    <li><a href="#exception-handling">Exception Handling</a>
+      <ol>
+        <li><a href="#whencomplete">whenComplete</a></li>
+        <li><a href="#exceptionally">exceptionally</a></li>
+        <li><a href="#common-issues--notes">Common Issues &amp; Notes</a></li>
+      </ol>
+    </li>
+    <li><a href="#combination">Combination</a>
+      <ol>
+        <li><a href="#two-tasks-and-thencombinethenacceptboththenafterboth">Two Tasks AND: thenCombine/thenAcceptBoth/thenAfterBoth</a></li>
+        <li><a href="#two-tasks-or-applytoeitheraccepteitherrunaftereither">Two Tasks OR: applyToEither/acceptEither/runAfterEither</a></li>
+        <li><a href="#multiple-tasks-allofanyof">Multiple Tasks: allOf/anyOf</a></li>
+      </ol>
+    </li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/java/" >
+                Java
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/java-async-programming-completablefuture/">Java Async Programming - CompletableFuture</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 08, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    16 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="background">Background
+</h2><p>CompletableFuture was introduced as a Java 8 and is helpful for asynchronous programming. It allows developers to write non-blocking code and execute tasks in parallel. However, it can be challenging to understand how to use CompletableFuture effectively. This post will provide a comprehensive guide to using CompletableFuture in Java.</p>
+<h2 id="create-completablefuture">Create CompletableFuture
+</h2><ol>
+<li>The supplyAsync method is used to create a CompletableFuture that returns a value, while the runAsync method is used to create a CompletableFuture that does not return a value.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier){..}  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; supplier,Executor executor){..}  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable){..}  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public static CompletableFuture&lt;Void&gt; runAsync(Runnable runnable,Executor executor){..}  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="get-result">Get Result
+</h2><ol>
+<li>
+<p>The get method is used to retrieve the result of a CompletableFuture. It is a blocking call that waits for the result to be available.</p>
+</li>
+<li>
+<p>the get with timeout method is used to retrieve the result of a CompletableFuture with a timeout. It is a blocking call that waits for the result to be available within the specified time.</p>
+</li>
+<li>
+<p>the getNow method is used to retrieve the result of a CompletableFuture. It returns the specified value if the result is not available.</p>
+</li>
+<li>
+<p>the join method is used to retrieve the result of a CompletableFuture. It is a non-blocking call that waits for the result to be available. No checked exception is thrown.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public T get()  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public T get(long timeout, TimeUnit unit)  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public T getNow(T valueIfAbsent)  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public T join()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="callback">Callback
+</h2><h3 id="thenrunthenrunasync">thenRun/thenRunAsync
+</h3><ol>
+<li>
+<p>the 2nd task doest not dependent on the 1st stage&rsquo;s result</p>
+</li>
+<li>
+<p>the 2nd task does not return a value</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenRun(Runnable action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenRunAsync(Runnable action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenRunAsync(Runnable action Executor executor)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The difference between <code>thenRun</code> and <code>thenRunAsync</code> is that <code>thenRun</code> runs in the same thread as the previous stage, while <code>thenRunAsync</code> runs in a different thread. For example, the 1st task is executed in the defined thread pool, and the 2nd task is executed in the forkJoin pool if no other pool is specified. Same difference between other methods.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public static void main(String[] args) throws Exception {
+</span></span><span class="line"><span class="cl">    ExecutorService executor = Executors.newFixedThreadPool(2);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;\n=== thenRun vs thenRunAsync ===&#34;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;First task running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        return &#34;Some Result&#34;;
+</span></span><span class="line"><span class="cl">    }, executor).thenRun(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;thenRun - Second task running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    });
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;First task running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        return &#34;Some Result&#34;;
+</span></span><span class="line"><span class="cl">    }, executor).thenRunAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;thenRunAsync - Second task running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    });
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    executor.shutdown();
+</span></span><span class="line"><span class="cl">    executor.awaitTermination(5, TimeUnit.SECONDS);
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== thenRun vs thenRunAsync ===
+</span></span><span class="line"><span class="cl">First task running in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">thenRun - Second task running in thread: main
+</span></span><span class="line"><span class="cl">First task running in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">thenRunAsync - Second task running in thread: ForkJoinPool.commonPool-worker-1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="thenacceptthenacceptasync">thenAccept/thenAcceptAsync
+</h3><ol>
+<li>
+<p>the 2nd task can access the 1st stage&rsquo;s result</p>
+</li>
+<li>
+<p>the 2nd task does not return a value</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenAccept(Consumer&lt;? super T&gt; action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenAcceptAsync(Consumer&lt;? super T&gt; action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;Void&gt; thenAcceptAsync(Consumer&lt;? super T&gt; action, Executor executor)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">System.out.println(&#34;\n=== thenAccept Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Calculating price...&#34;);
+</span></span><span class="line"><span class="cl">    return 100.0; // Simulating price calculation
+</span></span><span class="line"><span class="cl">}, executor).thenAccept(price -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Price received: $&#34; + price);
+</span></span><span class="line"><span class="cl">    // Process the price but don&#39;t return anything
+</span></span><span class="line"><span class="cl">});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== thenAccept Example ===
+</span></span><span class="line"><span class="cl">Calculating price...
+</span></span><span class="line"><span class="cl">Price received: $100.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="thenapplythenapplyasync">thenApply/thenApplyAsync
+</h3><ol>
+<li>
+<p>the 2nd task can access the 1st stage&rsquo;s result</p>
+</li>
+<li>
+<p>the 2nd task returns a value</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">public</span> <span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">thenApply</span><span class="p">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="err">?</span> <span class="n">super</span> <span class="n">T</span><span class="p">,</span><span class="err">?</span> <span class="k">extends</span> <span class="n">U</span><span class="o">&gt;</span> <span class="n">fn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">public</span> <span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">thenApplyAsync</span><span class="p">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="err">?</span> <span class="n">super</span> <span class="n">T</span><span class="p">,</span><span class="err">?</span> <span class="k">extends</span> <span class="n">U</span><span class="o">&gt;</span> <span class="n">fn</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">public</span> <span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">thenApplyAsync</span><span class="p">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="err">?</span> <span class="n">super</span> <span class="n">T</span><span class="p">,</span><span class="err">?</span> <span class="k">extends</span> <span class="n">U</span><span class="o">&gt;</span> <span class="n">fn</span><span class="p">,</span> <span class="n">Executor</span> <span class="n">executor</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">System.out.println(&#34;\n=== thenApply Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; finalPrice = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Calculating base price...&#34;);
+</span></span><span class="line"><span class="cl">    return 100.0; // Base price
+</span></span><span class="line"><span class="cl">}, executor).thenApply(price -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Adding tax...&#34;);
+</span></span><span class="line"><span class="cl">    return price * 1.2; // Adding 20% tax
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">System.out.println(&#34;Final price with tax: $&#34; + finalPrice.get());
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== thenApply Example ===
+</span></span><span class="line"><span class="cl">Calculating base price...
+</span></span><span class="line"><span class="cl">Adding tax...
+</span></span><span class="line"><span class="cl">Final price with tax: $120.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="thencomposethencomposeasync">thenCompose/thenComposeAsync
+</h3><ol>
+<li>
+<p>The thenCompose method is used to chain multiple CompletableFutures together.</p>
+</li>
+<li>
+<p>The thenCompose method takes a Function that returns a CompletableFuture.</p>
+</li>
+<li>
+<p>The differenvce between thenApply and thenCompose is that thenApply returns a value, while thenCompose returns a CompletableFuture. If you retuen a CompletableFuture in thenApply, it will be wrapped in another CompletableFuture, which means you will have a nested CompletableFuture. So use thenCompose if you want to chain multiple CompletableFutures together.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">System.out.println(&#34;\n=== thenApply vs thenCompose Difference ===&#34;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Using thenApply - results in nested CompletableFuture
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;CompletableFuture&lt;String&gt;&gt; nestedFuture = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;First task in thenApply: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return &#34;user123&#34;;
+</span></span><span class="line"><span class="cl">}, executor).thenApply(userId -&gt; {
+</span></span><span class="line"><span class="cl">    // This returns a CompletableFuture, but it gets wrapped in another CompletableFuture
+</span></span><span class="line"><span class="cl">    return CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;Second task in thenApply: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        return &#34;User details for: &#34; + userId;
+</span></span><span class="line"><span class="cl">    }, executor);
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Using thenCompose - flattens the nested CompletableFuture
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; flatFuture = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;First task in thenCompose: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return &#34;user123&#34;;
+</span></span><span class="line"><span class="cl">}, executor).thenCompose(userId -&gt; {
+</span></span><span class="line"><span class="cl">    // This returns a CompletableFuture, and thenCompose flattens it
+</span></span><span class="line"><span class="cl">    return CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;Second task in thenCompose: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        return &#34;User details for: &#34; + userId;
+</span></span><span class="line"><span class="cl">    }, executor);
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">System.out.println(&#34;thenApply result type: &#34; + nestedFuture.get().get()); // Note the double get()
+</span></span><span class="line"><span class="cl">System.out.println(&#34;thenCompose result type: &#34; + flatFuture.get()); // Single get()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== thenApply vs thenCompose Difference ===
+</span></span><span class="line"><span class="cl">First task in thenApply: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Second task in thenApply: pool-1-thread-2
+</span></span><span class="line"><span class="cl">First task in thenCompose: pool-1-thread-3
+</span></span><span class="line"><span class="cl">thenApply result type: User details for: user123
+</span></span><span class="line"><span class="cl">Second task in thenCompose: pool-1-thread-4
+</span></span><span class="line"><span class="cl">thenCompose result type: User details for: user123
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="exception-handling">Exception Handling
+</h2><h3 id="whencomplete">whenComplete
+</h3><ol>
+<li>
+<p>The whenComplete method is called when the CompletableFuture completes, regardless of whether it completed successfully or exceptionally.</p>
+</li>
+<li>
+<p>If the CompletableFuture completes successfully, the whenComplete method receives the result and the exception is null.</p>
+</li>
+<li>
+<p>If the CompletableFuture completes exceptionally, the whenComplete method receives null as the result and the exception.</p>
+</li>
+<li>
+<p>The exception will be thrown if the get method is called on the CompletableFuture and the exception is not swallowed.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public CompletableFuture&lt;T&gt; whenComplete(BiConsumer&lt;? super T,? super Throwable&gt; action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;T&gt; whenCompleteAsync(BiConsumer&lt;? super T,? super Throwable&gt; action)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">public CompletableFuture&lt;T&gt; whenCompleteAsync(BiConsumer&lt;? super T,? super Throwable&gt; action, Executor executor)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// Example 1: Successful completion
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== Successful Completion Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Integer&gt; successFuture = CompletableFuture
+</span></span><span class="line"><span class="cl">        .supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">            System.out.println(&#34;Calculating result in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">            return 42;
+</span></span><span class="line"><span class="cl">        }, executor)
+</span></span><span class="line"><span class="cl">        .whenComplete((result, ex) -&gt; {
+</span></span><span class="line"><span class="cl">            if (ex == null) {
+</span></span><span class="line"><span class="cl">                System.out.println(&#34;Operation completed successfully with result: &#34; + result);
+</span></span><span class="line"><span class="cl">            } else {
+</span></span><span class="line"><span class="cl">                System.out.println(&#34;Operation failed with exception: &#34; + ex.getMessage());
+</span></span><span class="line"><span class="cl">            }
+</span></span><span class="line"><span class="cl">            System.out.println(&#34;whenComplete running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        });
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">System.out.println(&#34;Success result: &#34; + successFuture.get());
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 2: Exceptional completion
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== Exceptional Completion Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Integer&gt; errorFuture = CompletableFuture
+</span></span><span class="line"><span class="cl">        .&lt;Integer&gt;supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">            System.out.println(&#34;Throwing exception in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">            throw new IllegalStateException(&#34;Simulated error&#34;);
+</span></span><span class="line"><span class="cl">        }, executor)
+</span></span><span class="line"><span class="cl">        .whenComplete((result, ex) -&gt; {
+</span></span><span class="line"><span class="cl">            if (ex == null) {
+</span></span><span class="line"><span class="cl">                System.out.println(&#34;Operation completed successfully with result: &#34; + result);
+</span></span><span class="line"><span class="cl">            } else {
+</span></span><span class="line"><span class="cl">                System.out.println(&#34;Operation failed with exception: &#34; + ex.getMessage());
+</span></span><span class="line"><span class="cl">            }
+</span></span><span class="line"><span class="cl">            System.out.println(&#34;whenComplete running in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">        });
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">try {
+</span></span><span class="line"><span class="cl">    errorFuture.get(); // This will throw an exception
+</span></span><span class="line"><span class="cl">} catch (Exception e) {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Caught exception from get(): &#34; + e.getCause().getMessage());
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== Successful Completion Example ===
+</span></span><span class="line"><span class="cl">Calculating result in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Operation completed successfully with result: 42
+</span></span><span class="line"><span class="cl">whenComplete running in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Success result: 42
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== Exceptional Completion Example ===
+</span></span><span class="line"><span class="cl">Throwing exception in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Operation failed with exception: java.lang.IllegalStateException: Simulated error
+</span></span><span class="line"><span class="cl">whenComplete running in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Caught exception from get(): Simulated error
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="exceptionally">exceptionally
+</h3><ol>
+<li>the exceptionally method is called when the CompletableFuture completes exceptionally.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">public</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">exceptionally</span><span class="p">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">Throwable</span><span class="p">,</span><span class="err">?</span> <span class="k">extends</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">fn</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">System.out.println(&#34;\n=== Basic Exception Handling ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Integer&gt; divisionFuture = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Attempting division...&#34;);
+</span></span><span class="line"><span class="cl">    return 100 / 0; // Will throw ArithmeticException
+</span></span><span class="line"><span class="cl">}, executor).exceptionally(throwable -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Exception caught: &#34; + throwable.getMessage());
+</span></span><span class="line"><span class="cl">    return -1; // Return default value in case of error
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">System.out.println(&#34;Division result: &#34; + divisionFuture.get());
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== Basic Exception Handling ===
+</span></span><span class="line"><span class="cl">Attempting division...
+</span></span><span class="line"><span class="cl">Exception caught: java.lang.ArithmeticException: / by zero
+</span></span><span class="line"><span class="cl">Division result: -1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="common-issues--notes">Common Issues &amp; Notes
+</h3><ol>
+<li>Slient Failures</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// WRONG - Exception gets swallowed
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Error&#34;);
+</span></span><span class="line"><span class="cl">}).thenAccept(result -&gt; {
+</span></span><span class="line"><span class="cl">    // This never executes due to exception
+</span></span><span class="line"><span class="cl">    System.out.println(result);
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// CORRECT - Handle the exception
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Error&#34;);
+</span></span><span class="line"><span class="cl">}).whenComplete((result, ex) -&gt; {
+</span></span><span class="line"><span class="cl">    if (ex != null) {
+</span></span><span class="line"><span class="cl">        System.err.println(&#34;Error occurred: &#34; + ex.getMessage());
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">}).exceptionally(throwable -&gt; {
+</span></span><span class="line"><span class="cl">    // Provide fallback value
+</span></span><span class="line"><span class="cl">    return null;
+</span></span><span class="line"><span class="cl">});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>Chain Breaking</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// WRONG - Chain breaks after exception
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Error&#34;);
+</span></span><span class="line"><span class="cl">}).thenApply(result -&gt; {
+</span></span><span class="line"><span class="cl">    return &#34;Processed: &#34; + result; // Never executes
+</span></span><span class="line"><span class="cl">}).thenAccept(System.out::println);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// CORRECT - Handle exception and continue chain
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Error&#34;);
+</span></span><span class="line"><span class="cl">}).exceptionally(ex -&gt; {
+</span></span><span class="line"><span class="cl">    return &#34;Default Value&#34;; // Provide fallback
+</span></span><span class="line"><span class="cl">}).thenApply(result -&gt; {
+</span></span><span class="line"><span class="cl">    return &#34;Processed: &#34; + result; // Continues with fallback value
+</span></span><span class="line"><span class="cl">}).thenAccept(System.out::println);
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>Exception Propagation in Composed Futures</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// WRONG - Lost exception in nested future
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    return CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        throw new RuntimeException(&#34;Nested Error&#34;);
+</span></span><span class="line"><span class="cl">    });
+</span></span><span class="line"><span class="cl">}).thenAccept(System.out::println);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// CORRECT - Use thenCompose to properly propagate exceptions
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; &#34;value&#34;)
+</span></span><span class="line"><span class="cl">    .thenCompose(value -&gt; CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        throw new RuntimeException(&#34;Nested Error&#34;);
+</span></span><span class="line"><span class="cl">    }))
+</span></span><span class="line"><span class="cl">    .exceptionally(ex -&gt; {
+</span></span><span class="line"><span class="cl">        System.err.println(&#34;Caught: &#34; + ex.getMessage());
+</span></span><span class="line"><span class="cl">        return &#34;fallback&#34;;
+</span></span><span class="line"><span class="cl">    });
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>Lost Context in Async Methods</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// WRONG - Exception context might be lost
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Original error&#34;);
+</span></span><span class="line"><span class="cl">}).thenApplyAsync(result -&gt; {
+</span></span><span class="line"><span class="cl">    // Exception context might be different thread
+</span></span><span class="line"><span class="cl">    return result;
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// CORRECT - Preserve context with proper exception handling
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new RuntimeException(&#34;Original error&#34;);
+</span></span><span class="line"><span class="cl">}).whenComplete((result, ex) -&gt; {
+</span></span><span class="line"><span class="cl">    // Capture exception context here
+</span></span><span class="line"><span class="cl">    if (ex != null) {
+</span></span><span class="line"><span class="cl">        // Log with full context
+</span></span><span class="line"><span class="cl">        logger.error(&#34;Operation failed&#34;, ex);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>Exception Recovery Patterns</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">CompletableFuture&lt;String&gt; future = CompletableFuture
+</span></span><span class="line"><span class="cl">    .supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">        if (something) throw new RuntimeException(&#34;Error&#34;);
+</span></span><span class="line"><span class="cl">        return &#34;result&#34;;
+</span></span><span class="line"><span class="cl">    })
+</span></span><span class="line"><span class="cl">    .exceptionally(ex -&gt; {
+</span></span><span class="line"><span class="cl">        if (ex instanceof RuntimeException) {
+</span></span><span class="line"><span class="cl">            return &#34;recovered&#34;;
+</span></span><span class="line"><span class="cl">        }
+</span></span><span class="line"><span class="cl">        throw new CompletionException(ex);
+</span></span><span class="line"><span class="cl">    })
+</span></span><span class="line"><span class="cl">    .whenComplete((result, ex) -&gt; {
+</span></span><span class="line"><span class="cl">        // Log final outcome
+</span></span><span class="line"><span class="cl">        if (ex != null) {
+</span></span><span class="line"><span class="cl">            logger.error(&#34;Operation failed&#34;, ex);
+</span></span><span class="line"><span class="cl">        } else {
+</span></span><span class="line"><span class="cl">            logger.info(&#34;Operation succeeded with: &#34; + result);
+</span></span><span class="line"><span class="cl">        }
+</span></span><span class="line"><span class="cl">    });
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>Handling Checked Exceptions</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// WRONG - Checked exceptions must be wrapped
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    throw new IOException(); // Won&#39;t compile
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// CORRECT - Wrap checked exceptions
+</span></span><span class="line"><span class="cl">CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    try {
+</span></span><span class="line"><span class="cl">        throw new IOException();
+</span></span><span class="line"><span class="cl">    } catch (IOException e) {
+</span></span><span class="line"><span class="cl">        throw new CompletionException(e);
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="7">
+<li>Global Exception Handler</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// Set up global exception handler for uncaught exceptions
+</span></span><span class="line"><span class="cl">Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -&gt; {
+</span></span><span class="line"><span class="cl">    logger.error(&#34;Uncaught async exception&#34;, throwable);
+</span></span><span class="line"><span class="cl">});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="combination">Combination
+</h2><h3 id="two-tasks-and-thencombinethenacceptboththenafterboth">Two Tasks AND: thenCombine/thenAcceptBoth/thenAfterBoth
+</h3><ol>
+<li>
+<p>These 3 methods are used to combine the results of 2 CompletableFutures then execute the 3rd task.</p>
+</li>
+<li>
+<p>thenCombine can get the results of both CompletableFutures and return a value.</p>
+</li>
+<li>
+<p>thenAcceptBoth can get the results of both CompletableFutures but does not return a value.</p>
+</li>
+<li>
+<p>thenAfterBoth does not get the results of both CompletableFutures and does not return a value.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// Example 1: thenCombine
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== thenCombine Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; priceF = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Calculating price in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return 100.0;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; discountF = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Calculating discount in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return 0.2; // 20% discount
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; finalPriceF = priceF.thenCombine(discountF, (price, discount) -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Combining price and discount in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return price * (1 - discount);
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">System.out.println(&#34;Final price after discount: $&#34; + finalPriceF.get());
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 2: thenAcceptBoth
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== thenAcceptBoth Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; userF = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Fetching user in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return &#34;John Doe&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Integer&gt; orderCountF = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Fetching order count in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return 5;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">userF.thenAcceptBoth(orderCountF, (user, orderCount) -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Processing in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;User &#34; + user + &#34; has placed &#34; + orderCount + &#34; orders&#34;);
+</span></span><span class="line"><span class="cl">}).get();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 3: runAfterBoth
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== runAfterBoth Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Void&gt; cacheUpdateF = CompletableFuture.runAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Updating cache in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Cache update completed&#34;);
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Void&gt; dbUpdateF = CompletableFuture.runAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Updating database in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Database update completed&#34;);
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cacheUpdateF.runAfterBoth(dbUpdateF, () -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Running final task in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;All updates completed - sending notification&#34;);
+</span></span><span class="line"><span class="cl">}).get();
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== thenCombine Example ===
+</span></span><span class="line"><span class="cl">Calculating discount in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Calculating price in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Combining price and discount in thread: main
+</span></span><span class="line"><span class="cl">Final price after discount: $80.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== thenAcceptBoth Example ===
+</span></span><span class="line"><span class="cl">Fetching user in thread: pool-1-thread-3
+</span></span><span class="line"><span class="cl">Fetching order count in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Processing in thread: main
+</span></span><span class="line"><span class="cl">User John Doe has placed 5 orders
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== runAfterBoth Example ===
+</span></span><span class="line"><span class="cl">Updating cache in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Cache update completed
+</span></span><span class="line"><span class="cl">Updating database in thread: pool-1-thread-3
+</span></span><span class="line"><span class="cl">Database update completed
+</span></span><span class="line"><span class="cl">Running final task in thread: main
+</span></span><span class="line"><span class="cl">All updates completed - sending notification
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="two-tasks-or-applytoeitheraccepteitherrunaftereither">Two Tasks OR: applyToEither/acceptEither/runAfterEither
+</h3><ol>
+<li>
+<p>These 3 methods are used to execute the 3rd task when either of the 2 CompletableFutures completes.</p>
+</li>
+<li>
+<p>applyToEither can get the result of the first completed CompletableFuture and return a value.</p>
+</li>
+<li>
+<p>acceptEither can get the result of the first completed CompletableFuture but does not return a value.</p>
+</li>
+<li>
+<p>runAfterEither does not get the result of the first completed CompletableFuture and does not return a value.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// Example 1: applyToEither - Get price from fastest responding service
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== applyToEither Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; service1Price = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Service 1 checking price in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(2000); // Slower service
+</span></span><span class="line"><span class="cl">    return 100.50;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; service2Price = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Service 2 checking price in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000); // Faster service
+</span></span><span class="line"><span class="cl">    return 99.99;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; fastestPrice = service1Price.applyToEither(service2Price, price -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Processing fastest price in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    return String.format(&#34;Best available price: $%.2f&#34;, price);
+</span></span><span class="line"><span class="cl">});
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">System.out.println(fastestPrice.get());
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 2: acceptEither - Log first available weather data
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== acceptEither Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; primaryWeather = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Primary weather service in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(2000); // Slower service
+</span></span><span class="line"><span class="cl">    return &#34;Sunny, 25°C&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; backupWeather = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Backup weather service in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000); // Faster service
+</span></span><span class="line"><span class="cl">    return &#34;Sunny, 26°C&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">primaryWeather.acceptEither(backupWeather, weather -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Processing weather data in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Current weather: &#34; + weather);
+</span></span><span class="line"><span class="cl">}).get();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 3: runAfterEither - Notification after first cache update
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== runAfterEither Example ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Void&gt; primaryCache = CompletableFuture.runAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Updating primary cache in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(2000);
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Primary cache updated&#34;);
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Void&gt; backupCache = CompletableFuture.runAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Updating backup cache in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000);
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Backup cache updated&#34;);
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">primaryCache.runAfterEither(backupCache, () -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Running notification in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Cache system is now updated&#34;);
+</span></span><span class="line"><span class="cl">}).get();
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== applyToEither Example ===
+</span></span><span class="line"><span class="cl">Service 1 checking price in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Service 2 checking price in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Processing fastest price in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Best available price: $99.99
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== acceptEither Example ===
+</span></span><span class="line"><span class="cl">Primary weather service in thread: pool-1-thread-3
+</span></span><span class="line"><span class="cl">Backup weather service in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Processing weather data in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Current weather: Sunny, 26°C
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== runAfterEither Example ===
+</span></span><span class="line"><span class="cl">Updating primary cache in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Updating backup cache in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Backup cache updated
+</span></span><span class="line"><span class="cl">Running notification in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Cache system is now updated
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="multiple-tasks-allofanyof">Multiple Tasks: allOf/anyOf
+</h3><ol>
+<li>
+<p>The allOf method is used to execute a task after all CompletableFutures complete.</p>
+</li>
+<li>
+<p>The anyOf method is used to execute a task after any CompletableFuture completes.</p>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">// Example 1: allOf with data aggregation
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== allOf Example - Product Details ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; productDetails = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Fetching product details in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000);
+</span></span><span class="line"><span class="cl">    return &#34;Laptop XPS 15&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Double&gt; productPrice = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Fetching price in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1500);
+</span></span><span class="line"><span class="cl">    return 1299.99;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Integer&gt; productStock = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Checking stock in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000);
+</span></span><span class="line"><span class="cl">    return 50;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Void&gt; allDetails = CompletableFuture.allOf(
+</span></span><span class="line"><span class="cl">        productDetails, productPrice, productStock);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">allDetails.thenRun(() -&gt; {
+</span></span><span class="line"><span class="cl">    try {
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;\nAll product information gathered:&#34;);
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;Product: &#34; + productDetails.get());
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;Price: $&#34; + productPrice.get());
+</span></span><span class="line"><span class="cl">        System.out.println(&#34;Stock: &#34; + productStock.get() + &#34; units&#34;);
+</span></span><span class="line"><span class="cl">    } catch (Exception e) {
+</span></span><span class="line"><span class="cl">        e.printStackTrace();
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">}).get();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Example 2: anyOf with multiple data sources
+</span></span><span class="line"><span class="cl">System.out.println(&#34;\n=== anyOf Example - Multiple Data Sources ===&#34;);
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; primaryDb = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Querying primary database in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(2000); // Slow response
+</span></span><span class="line"><span class="cl">    return &#34;Data from Primary DB&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; secondaryDb = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Querying secondary database in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(1000); // Faster response
+</span></span><span class="line"><span class="cl">    return &#34;Data from Secondary DB&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;String&gt; cache = CompletableFuture.supplyAsync(() -&gt; {
+</span></span><span class="line"><span class="cl">    System.out.println(&#34;Checking cache in thread: &#34; + Thread.currentThread().getName());
+</span></span><span class="line"><span class="cl">    sleep(500); // Fastest response
+</span></span><span class="line"><span class="cl">    return &#34;Data from Cache&#34;;
+</span></span><span class="line"><span class="cl">}, executor);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CompletableFuture&lt;Object&gt; firstResponse = CompletableFuture.anyOf(primaryDb, secondaryDb, cache);
+</span></span><span class="line"><span class="cl">System.out.println(&#34;First available response: &#34; + firstResponse.get());
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">=== allOf Example - Product Details ===
+</span></span><span class="line"><span class="cl">Fetching product details in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">Fetching price in thread: pool-1-thread-2
+</span></span><span class="line"><span class="cl">Checking stock in thread: pool-1-thread-3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">All product information gathered:
+</span></span><span class="line"><span class="cl">Product: Laptop XPS 15
+</span></span><span class="line"><span class="cl">Price: $1299.99
+</span></span><span class="line"><span class="cl">Stock: 50 units
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=== anyOf Example - Multiple Data Sources ===
+</span></span><span class="line"><span class="cl">Querying primary database in thread: pool-1-thread-4
+</span></span><span class="line"><span class="cl">Querying secondary database in thread: pool-1-thread-3
+</span></span><span class="line"><span class="cl">Checking cache in thread: pool-1-thread-1
+</span></span><span class="line"><span class="cl">First available response: Data from Cache
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="summary">Summary
+</h2><p>CompletableFuture is a powerful tool for asynchronous programming in Java. It allows developers to write non-blocking code and execute tasks in parallel. By understanding how to use CompletableFuture effectively, developers can improve the performance of their applications and create more responsive user experiences. This post has provided a comprehensive guide to using CompletableFuture in Java, including examples of how to use the various methods available.</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/java/">Java</a>
+        
+            <a href="/tags/async/">Async</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            Last updated on Dec 08, 2024 00:00 UTC
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2024 ByteLife Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

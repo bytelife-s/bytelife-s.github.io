@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Problem Example for setting up monitoring for Docker environment using ELK and Prometheus-Grafana.\nGoal:\nBuild logging monitoring system using ELK stack to monitor logs from Docker containers automatically.\nBuild metrics monitoring system using Prometheus and Grafana to monitor Docker containers and linux host automatically.\nBuild alerting system using Prometheus Alertmanager to send alerts via email\nAdd Kong API Gateway as host entry and monitor its logs and metrics\nHigh Level Architecture ">
+<title>Setup Monitoring for Docker Environment Using ELK and Prometheus-Grafana</title>
+
+<link rel='canonical' href='http://localhost:1313/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Setup Monitoring for Docker Environment Using ELK and Prometheus-Grafana">
+<meta property='og:description' content="Problem Example for setting up monitoring for Docker environment using ELK and Prometheus-Grafana.\nGoal:\nBuild logging monitoring system using ELK stack to monitor logs from Docker containers automatically.\nBuild metrics monitoring system using Prometheus and Grafana to monitor Docker containers and linux host automatically.\nBuild alerting system using Prometheus Alertmanager to send alerts via email\nAdd Kong API Gateway as host entry and monitor its logs and metrics\nHigh Level Architecture ">
+<meta property='og:url' content='http://localhost:1313/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/'>
+<meta property='og:site_name' content='ByteLife Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ELK' /><meta property='article:tag' content='Observability' /><meta property='article:tag' content='Grafana' /><meta property='article:tag' content='Prometheus' /><meta property='article:published_time' content='2024-12-15T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-12-15T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Setup Monitoring for Docker Environment Using ELK and Prometheus-Grafana">
+<meta name="twitter:description" content="Problem Example for setting up monitoring for Docker environment using ELK and Prometheus-Grafana.\nGoal:\nBuild logging monitoring system using ELK stack to monitor logs from Docker containers automatically.\nBuild metrics monitoring system using Prometheus and Grafana to monitor Docker containers and linux host automatically.\nBuild alerting system using Prometheus Alertmanager to send alerts via email\nAdd Kong API Gateway as host entry and monitor its logs and metrics\nHigh Level Architecture ">
+    <link rel="shortcut icon" href="/favicon.png" />
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-EF57CVSXQT"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-EF57CVSXQT');
+        }
+      </script>
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/danhuangcat_hu3803285951708884171.jpg" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">ByteLife Blog</a></h1>
+            <h2 class="site-description">Byte Life</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#high-level-architecture">High Level Architecture</a></li>
+    <li><a href="#main-docker-compose-configuration">Main Docker Compose Configuration</a></li>
+    <li><a href="#logging-pipeling-configuration">Logging Pipeling Configuration</a></li>
+    <li><a href="#metrics-monitoring-configuration">Metrics Monitoring Configuration</a></li>
+    <li><a href="#alert-configuration">Alert Configuration</a></li>
+    <li><a href="#kong-api-gateway-configuration">Kong API Gateway Configuration</a></li>
+    <li><a href="#start-monitoring-system">Start Monitoring System</a></li>
+    <li><a href="#result">Result</a></li>
+    <li><a href="#summary">Summary</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/setup/" >
+                Setup
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/">Setup Monitoring for Docker Environment Using ELK and Prometheus-Grafana</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 15, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    9 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="problem">Problem
+</h2><p>Example for setting up monitoring for Docker environment using ELK and Prometheus-Grafana.</p>
+<p>Goal:</p>
+<ol>
+<li>
+<p>Build logging monitoring system using ELK stack to monitor logs from Docker containers automatically.</p>
+</li>
+<li>
+<p>Build metrics monitoring system using Prometheus and Grafana to monitor Docker containers and linux host automatically.</p>
+</li>
+<li>
+<p>Build alerting system using Prometheus Alertmanager to send alerts via email</p>
+</li>
+<li>
+<p>Add Kong API Gateway as host entry and monitor its logs and metrics</p>
+</li>
+</ol>
+<h2 id="high-level-architecture">High Level Architecture
+</h2><p><img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/high_level_architecture.png"
+	width="2847"
+	height="1535"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/high_level_architecture_hu4351017952284662349.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/high_level_architecture_hu10974234163979299467.png 1024w"
+	loading="lazy"
+	
+		alt="High Level Architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="185"
+		data-flex-basis="445px"
+	
+></p>
+<p>Components and ports:</p>
+<ul>
+<li>
+<p>Prometheus (9090)</p>
+</li>
+<li>
+<p>Grafana (3000)</p>
+</li>
+<li>
+<p>Node Exporter (9100)</p>
+</li>
+<li>
+<p>cAdvisor (8080)</p>
+</li>
+<li>
+<p>Elasticsearch (9200)</p>
+</li>
+<li>
+<p>Kibana (5601)</p>
+</li>
+<li>
+<p>Logstash (5044)</p>
+</li>
+<li>
+<p>AlertManager (9093)</p>
+</li>
+</ul>
+<p>Project structure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">monitor/
+</span></span><span class="line"><span class="cl">├── docker-compose.yml  # Docker Compose configuration
+</span></span><span class="line"><span class="cl">├── alertmanager/       # AlertManager configuration
+</span></span><span class="line"><span class="cl">│   └── config.yml     
+</span></span><span class="line"><span class="cl">├── prometheus/         # Prometheus configuration
+</span></span><span class="line"><span class="cl">│   └── prometheus.yml  
+</span></span><span class="line"><span class="cl">│   └── rules/
+</span></span><span class="line"><span class="cl">|       └── alert.rules # Prometheus alerting rules
+</span></span><span class="line"><span class="cl">├── logging/            # ELK stack configuration
+</span></span><span class="line"><span class="cl">│   └── config/         # Filebeat and Logstash configs
+</span></span><span class="line"><span class="cl">│   └── filebeat.yml
+</span></span><span class="line"><span class="cl">│   └── logstash.conf
+</span></span><span class="line"><span class="cl">├── kong/               # Kong API Gateway configuration
+</span></span><span class="line"><span class="cl">|    └── docker-compose.yml
+</span></span><span class="line"><span class="cl">|    └── setup-logging.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="main-docker-compose-configuration">Main Docker Compose Configuration
+</h2><p>monitor/docker-compose.yml</p>
+<p>in this file, we define the services and their configurations. We also define the volumes and networks for the services.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;3.8&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">services</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">prometheus</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">prom</span><span class="o">/</span><span class="n">prometheus</span><span class="p">:</span><span class="n">latest</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">prometheus</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;9090:9090&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">./</span><span class="n">prometheus</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">prometheus</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">prometheus_data</span><span class="p">:</span><span class="o">/</span><span class="n">prometheus</span>
+</span></span><span class="line"><span class="cl">    <span class="n">command</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--config.file=/etc/prometheus/prometheus.yml&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--storage.tsdb.path=/prometheus&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--web.console.libraries=/usr/share/prometheus/console_libraries&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--web.console.templates=/usr/share/prometheus/consoles&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">alertmanager</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">prom</span><span class="o">/</span><span class="n">alertmanager</span><span class="p">:</span><span class="n">latest</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">alertmanager</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;9093:9093&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">./</span><span class="n">alertmanager</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">alertmanager</span>
+</span></span><span class="line"><span class="cl">    <span class="n">command</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--config.file=/etc/alertmanager/config.yml&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--storage.path=/alertmanager&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">grafana</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">grafana</span><span class="o">/</span><span class="n">grafana</span><span class="p">:</span><span class="n">latest</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">grafana</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;3000:3000&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">grafana_data</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">grafana</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">GF_SECURITY_ADMIN_USER</span><span class="o">=</span><span class="n">admin</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">GF_SECURITY_ADMIN_PASSWORD</span><span class="o">=</span><span class="n">admin</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">prometheus</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">node</span><span class="o">-</span><span class="n">exporter</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">prom</span><span class="o">/</span><span class="n">node</span><span class="o">-</span><span class="n">exporter</span><span class="p">:</span><span class="n">latest</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">node</span><span class="o">-</span><span class="n">exporter</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;9100:9100&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="n">proc</span><span class="p">:</span><span class="o">/</span><span class="n">host</span><span class="o">/</span><span class="n">proc</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="n">sys</span><span class="p">:</span><span class="o">/</span><span class="n">host</span><span class="o">/</span><span class="n">sys</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">rootfs</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">    <span class="n">command</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--path.procfs=/host/proc&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--path.sysfs=/host/sys&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--path.rootfs=/rootfs&#39;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s1">&#39;--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">cadvisor</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">gcr</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">cadvisor</span><span class="o">/</span><span class="n">cadvisor</span><span class="p">:</span><span class="n">latest</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">cadvisor</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;8080:8080&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">rootfs</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">run</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">run</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="n">sys</span><span class="p">:</span><span class="o">/</span><span class="n">sys</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">docker</span><span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">docker</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">disk</span><span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">disk</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">    <span class="n">devices</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">kmsg</span><span class="p">:</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">kmsg</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">elasticsearch</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">docker</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">elasticsearch</span><span class="p">:</span><span class="mf">8.11</span><span class="o">.</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">elasticsearch</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">discovery</span><span class="o">.</span><span class="n">type</span><span class="o">=</span><span class="n">single</span><span class="o">-</span><span class="n">node</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">ES_JAVA_OPTS</span><span class="o">=-</span><span class="n">Xms512m</span> <span class="o">-</span><span class="n">Xmx512m</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">xpack</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">enabled</span><span class="o">=</span><span class="bp">false</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;9200:9200&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">elasticsearch_data</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">data</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">logstash</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">docker</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">logstash</span><span class="o">/</span><span class="n">logstash</span><span class="p">:</span><span class="mf">8.11</span><span class="o">.</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">logstash</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;5044:5044&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;5000:5000/tcp&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;5000:5000/udp&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">./</span><span class="n">logging</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">logstash</span><span class="o">.</span><span class="n">conf</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">logstash</span><span class="o">/</span><span class="n">pipeline</span><span class="o">/</span><span class="n">logstash</span><span class="o">.</span><span class="n">conf</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">LS_JAVA_OPTS</span><span class="o">=-</span><span class="n">Xms256m</span> <span class="o">-</span><span class="n">Xmx256m</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">elasticsearch</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">kibana</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">docker</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">kibana</span><span class="o">/</span><span class="n">kibana</span><span class="p">:</span><span class="mf">8.11</span><span class="o">.</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">kibana</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;5601:5601&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">ELASTICSEARCH_HOSTS</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">elasticsearch</span><span class="p">:</span><span class="mi">9200</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">elasticsearch</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">filebeat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">docker</span><span class="o">.</span><span class="n">elastic</span><span class="o">.</span><span class="n">co</span><span class="o">/</span><span class="n">beats</span><span class="o">/</span><span class="n">filebeat</span><span class="p">:</span><span class="mf">8.11</span><span class="o">.</span><span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">filebeat</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user</span><span class="p">:</span> <span class="n">root</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">./</span><span class="n">logging</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">filebeat</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">filebeat</span><span class="o">/</span><span class="n">filebeat</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">docker</span><span class="o">/</span><span class="n">containers</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">docker</span><span class="o">/</span><span class="n">containers</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">sock</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">docker</span><span class="o">.</span><span class="n">sock</span><span class="p">:</span><span class="n">ro</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">filebeat_data</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">filebeat</span><span class="o">/</span><span class="n">data</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">strict</span><span class="o">.</span><span class="n">perms</span><span class="o">=</span><span class="bp">false</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">ELASTIC_HOSTS</span><span class="o">=</span><span class="n">elasticsearch</span><span class="p">:</span><span class="mi">9200</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">KIBANA_HOSTS</span><span class="o">=</span><span class="n">kibana</span><span class="p">:</span><span class="mi">5601</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">LOGSTASH_HOSTS</span><span class="o">=</span><span class="n">logstash</span><span class="p">:</span><span class="mi">5044</span>
+</span></span><span class="line"><span class="cl">    <span class="n">command</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;--strict.perms=false&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">elasticsearch</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">logstash</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">prometheus_data</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">grafana_data</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">elasticsearch_data</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">filebeat_data</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">networks</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">host</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">external</span><span class="p">:</span> <span class="bp">true</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span><span class="p">:</span> <span class="n">host</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="logging-pipeling-configuration">Logging Pipeling Configuration
+</h2><p>monitor/logging/config/logstash.conf</p>
+<p>in this file, we define the Logstash pipeline configuration to process logs from Docker containers and kong and send them to Elasticsearch.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">input {
+</span></span><span class="line"><span class="cl">  tcp {
+</span></span><span class="line"><span class="cl">    port =&gt; 5000
+</span></span><span class="line"><span class="cl">    codec =&gt; json
+</span></span><span class="line"><span class="cl">    type =&gt; &#34;kong&#34;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">  beats {
+</span></span><span class="line"><span class="cl">    port =&gt; 5044
+</span></span><span class="line"><span class="cl">    type =&gt; &#34;beats&#34;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">filter {
+</span></span><span class="line"><span class="cl">  if [type] == &#34;beats&#34; {
+</span></span><span class="line"><span class="cl">    if [container] {
+</span></span><span class="line"><span class="cl">      if [container][labels][com.docker.compose.service] {
+</span></span><span class="line"><span class="cl">        mutate {
+</span></span><span class="line"><span class="cl">          add_field =&gt; {
+</span></span><span class="line"><span class="cl">            &#34;service.name&#34; =&gt; &#34;%{[container][labels][com.docker.compose.service]}&#34;
+</span></span><span class="line"><span class="cl">          }
+</span></span><span class="line"><span class="cl">        }
+</span></span><span class="line"><span class="cl">      } else {
+</span></span><span class="line"><span class="cl">        mutate {
+</span></span><span class="line"><span class="cl">          copy =&gt; {
+</span></span><span class="line"><span class="cl">            &#34;[container][name]&#34; =&gt; &#34;service.name&#34;
+</span></span><span class="line"><span class="cl">          }
+</span></span><span class="line"><span class="cl">        }
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  if [type] == &#34;kong&#34; {
+</span></span><span class="line"><span class="cl">    mutate {
+</span></span><span class="line"><span class="cl">      add_field =&gt; {
+</span></span><span class="line"><span class="cl">        &#34;service.name&#34; =&gt; &#34;kong&#34;
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  if [source] == &#34;docker&#34; {
+</span></span><span class="line"><span class="cl">    mutate {
+</span></span><span class="line"><span class="cl">      rename =&gt; { &#34;[container][name]&#34; =&gt; &#34;service.name&#34; }
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  date {
+</span></span><span class="line"><span class="cl">    match =&gt; [&#34;@timestamp&#34;, &#34;ISO8601&#34;]
+</span></span><span class="line"><span class="cl">    target =&gt; &#34;@timestamp&#34;
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">output {
+</span></span><span class="line"><span class="cl">  elasticsearch {
+</span></span><span class="line"><span class="cl">    hosts =&gt; [&#34;elasticsearch:9200&#34;]
+</span></span><span class="line"><span class="cl">    index =&gt; &#34;logstash-%{+YYYY.MM.dd}&#34;
+</span></span><span class="line"><span class="cl">    manage_template =&gt; true
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">  # For debugging
+</span></span><span class="line"><span class="cl">  stdout { codec =&gt; rubydebug }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>monitor/logging/config/filebeat.yml</p>
+<p>in this file, we define the Filebeat configuration to collect logs from Docker containers and send them to Logstash.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">filebeat</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl"><span class="o">-</span> <span class="n">type</span><span class="p">:</span> <span class="n">filestream</span>
+</span></span><span class="line"><span class="cl">  <span class="n">id</span><span class="p">:</span> <span class="n">docker</span><span class="o">-</span><span class="n">logs</span>
+</span></span><span class="line"><span class="cl">  <span class="n">paths</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">docker</span><span class="o">/</span><span class="n">containers</span><span class="o">/*/*.</span><span class="n">log</span>
+</span></span><span class="line"><span class="cl">  <span class="n">parsers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span> <span class="n">container</span><span class="p">:</span> <span class="o">~</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">processors</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">add_docker_metadata</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">host</span><span class="p">:</span> <span class="s2">&#34;unix:///var/run/docker.sock&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">decode_json_fields</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">fields</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;message&#34;</span><span class="p">,</span> <span class="s2">&#34;log&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">target</span><span class="p">:</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">overwrite_keys</span><span class="p">:</span> <span class="bp">true</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">drop_event</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">when</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">contains</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="n">container</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="s2">&#34;docker.elastic.co/logstash/logstash&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">rename</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">fields</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">-</span> <span class="n">from</span><span class="p">:</span> <span class="s2">&#34;container.name&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="n">to</span><span class="p">:</span> <span class="s2">&#34;service.name&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ignore_missing</span><span class="p">:</span> <span class="bp">true</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">output</span><span class="o">.</span><span class="n">logstash</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hosts</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;logstash:5044&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">logging</span><span class="o">.</span><span class="n">level</span><span class="p">:</span> <span class="n">debug</span>
+</span></span><span class="line"><span class="cl"><span class="n">logging</span><span class="o">.</span><span class="n">to_files</span><span class="p">:</span> <span class="bp">true</span>
+</span></span><span class="line"><span class="cl"><span class="n">logging</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">path</span><span class="p">:</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">filebeat</span><span class="o">/</span><span class="n">logs</span>
+</span></span><span class="line"><span class="cl">  <span class="n">name</span><span class="p">:</span> <span class="n">filebeat</span><span class="o">.</span><span class="n">log</span>
+</span></span><span class="line"><span class="cl">  <span class="n">keepfiles</span><span class="p">:</span> <span class="mi">7</span>
+</span></span><span class="line"><span class="cl">  <span class="n">permissions</span><span class="p">:</span> <span class="mi">0644</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">setup</span><span class="o">.</span><span class="n">ilm</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span> <span class="bp">false</span>
+</span></span><span class="line"><span class="cl"><span class="n">setup</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span> <span class="bp">false</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="metrics-monitoring-configuration">Metrics Monitoring Configuration
+</h2><p>monitor/prometheus/prometheus.yml</p>
+<p>in this file, we define the Prometheus configuration to scrape metrics from Node Exporter, cAdvisor, and Kong.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">global</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">scrape_interval</span><span class="p">:</span> <span class="mi">15</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">  <span class="n">evaluation_interval</span><span class="p">:</span> <span class="mi">15</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">rule_files</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="s2">&#34;rules/alert.rules.yml&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">alerting</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">alertmanagers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span> <span class="n">static_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">-</span> <span class="n">targets</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">          <span class="o">-</span> <span class="n">alertmanager</span><span class="p">:</span><span class="mi">9093</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">scrape_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">job_name</span><span class="p">:</span> <span class="s1">&#39;prometheus&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">static_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">targets</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;localhost:9090&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">job_name</span><span class="p">:</span> <span class="s1">&#39;node-exporter&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">static_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">targets</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;node-exporter:9100&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">job_name</span><span class="p">:</span> <span class="s1">&#39;cadvisor&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">static_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">targets</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;cadvisor:8080&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="o">-</span> <span class="n">job_name</span><span class="p">:</span> <span class="s1">&#39;kong&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">static_configs</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">targets</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;172.17.0.1:8001&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">metrics_path</span><span class="p">:</span> <span class="o">/</span><span class="n">metrics</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="alert-configuration">Alert Configuration
+</h2><p>monitor/prometheus/rules/alert.rules.yml</p>
+<p>in this file, we define the Prometheus alerting rules to trigger alerts based on metrics.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">groups:
+</span></span><span class="line"><span class="cl">- name: cpu_alerts
+</span></span><span class="line"><span class="cl">  rules:
+</span></span><span class="line"><span class="cl">  - alert: HighCPUUsage
+</span></span><span class="line"><span class="cl">    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=&#34;idle&#34;}[5m])) * 100) &gt; 80
+</span></span><span class="line"><span class="cl">    for: 15m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;High CPU usage detected&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;CPU usage has been above 80% for more than 5 minute.&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }}%&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">- name: container_alerts
+</span></span><span class="line"><span class="cl">  rules:
+</span></span><span class="line"><span class="cl">  - alert: ContainerHighCPUUsage
+</span></span><span class="line"><span class="cl">    expr: sum(rate(container_cpu_usage_seconds_total{container!=&#34;&#34;}[5m])) by (container) * 100 &gt; 80
+</span></span><span class="line"><span class="cl">    for: 15m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;Container High CPU Usage&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;Container {{ $labels.container }} CPU usage is above 80% for more than 5 minutes&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }}%&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  - alert: ContainerHighMemoryUsage
+</span></span><span class="line"><span class="cl">    expr: (container_memory_usage_bytes{container!=&#34;&#34;} / container_spec_memory_limit_bytes{container!=&#34;&#34;} * 100) &gt; 80
+</span></span><span class="line"><span class="cl">    for: 15m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;Container High Memory Usage&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;Container {{ $labels.container }} memory usage is above 80% for more than 5 minutes&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }}%&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">- name: kong_alerts
+</span></span><span class="line"><span class="cl">  rules:
+</span></span><span class="line"><span class="cl">  - alert: KongHighLatency
+</span></span><span class="line"><span class="cl">    expr: histogram_quantile(0.95, sum(rate(kong_latency_bucket{type=&#34;request&#34;}[5m])) by (le)) &gt; 2000
+</span></span><span class="line"><span class="cl">    for: 5m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;Kong High Latency&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;95th percentile of Kong request latency is above 2 seconds&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }}ms&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  - alert: KongHighErrorRate
+</span></span><span class="line"><span class="cl">    expr: sum(rate(kong_http_requests_total{code=~&#34;5..&#34;}[5m])) / sum(rate(kong_http_requests_total[5m])) * 100 &gt; 5
+</span></span><span class="line"><span class="cl">    for: 5m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;Kong High Error Rate&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;Error rate is above 5% for the last 5 minutes&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }}%&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  - alert: KongHighTotalRequests
+</span></span><span class="line"><span class="cl">    expr: sum(rate(kong_http_requests_total[5m])) &gt; 1000
+</span></span><span class="line"><span class="cl">    for: 5m
+</span></span><span class="line"><span class="cl">    labels:
+</span></span><span class="line"><span class="cl">      severity: warning
+</span></span><span class="line"><span class="cl">    annotations:
+</span></span><span class="line"><span class="cl">      summary: &#34;Kong High Request Rate&#34;
+</span></span><span class="line"><span class="cl">      description: &#34;Total requests per second is above 1000 for the last 5 minutes&#34;
+</span></span><span class="line"><span class="cl">      value: &#34;{{ $value }} req/s&#34;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>monitor/alertmanager/config.yml</p>
+<p>in this file, we define the AlertManager configuration to send alerts via email.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">global:
+</span></span><span class="line"><span class="cl">  resolve_timeout: 5m
+</span></span><span class="line"><span class="cl">  smtp_from: &#34;&lt;email&gt;&#34;  # Replace with your SES verified email
+</span></span><span class="line"><span class="cl">  smtp_smarthost: &#34;email-smtp.us-west-2.amazonaws.com:587&#34;  # SES SMTP endpoint for Oregon region
+</span></span><span class="line"><span class="cl">  smtp_auth_username: &#34;&lt;username&gt;&#34;  # Replace with your SES SMTP credentials
+</span></span><span class="line"><span class="cl">  smtp_auth_password: &#34;&lt;password&gt;&#34;  # Replace with your SES SMTP credentials
+</span></span><span class="line"><span class="cl">  smtp_require_tls: true
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">route:
+</span></span><span class="line"><span class="cl">  group_by: [&#39;alertname&#39;]
+</span></span><span class="line"><span class="cl">  group_wait: 30s
+</span></span><span class="line"><span class="cl">  group_interval: 5m
+</span></span><span class="line"><span class="cl">  repeat_interval: 1h
+</span></span><span class="line"><span class="cl">  receiver: &#39;email-notifications&#39;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">receivers:
+</span></span><span class="line"><span class="cl">- name: &#39;email-notifications&#39;
+</span></span><span class="line"><span class="cl">  email_configs:
+</span></span><span class="line"><span class="cl">  - to: &#34;&lt;email&gt;&#34;  # Replace with recipient email
+</span></span><span class="line"><span class="cl">    send_resolved: true
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="kong-api-gateway-configuration">Kong API Gateway Configuration
+</h2><p>monitor/kong/docker-compose.yml</p>
+<p>in this file, we define the Kong API Gateway configuration to expose the Kong Admin API and Proxy API.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;3.8&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">services</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">kong</span><span class="o">-</span><span class="n">database</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">postgres</span><span class="p">:</span><span class="mi">13</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">kong</span><span class="o">-</span><span class="n">database</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_USER</span><span class="p">:</span> <span class="n">kong</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_DB</span><span class="p">:</span> <span class="n">kong</span>
+</span></span><span class="line"><span class="cl">      <span class="n">POSTGRES_PASSWORD</span><span class="p">:</span> <span class="n">kongpass</span>
+</span></span><span class="line"><span class="cl">    <span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="n">kong_data</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">data</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ports</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="o">-</span> <span class="s2">&#34;5432:5432&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">healthcheck</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">test</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;CMD&#34;</span><span class="p">,</span> <span class="s2">&#34;pg_isready&#34;</span><span class="p">,</span> <span class="s2">&#34;-U&#34;</span><span class="p">,</span> <span class="s2">&#34;kong&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">interval</span><span class="p">:</span> <span class="mi">5</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">      <span class="n">timeout</span><span class="p">:</span> <span class="mi">5</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">      <span class="n">retries</span><span class="p">:</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">kong</span><span class="o">-</span><span class="n">migration</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">kong</span><span class="p">:</span><span class="mf">3.4</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">kong</span><span class="o">-</span><span class="n">migration</span>
+</span></span><span class="line"><span class="cl">    <span class="n">network_mode</span><span class="p">:</span> <span class="s2">&#34;host&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">command</span><span class="p">:</span> <span class="n">kong</span> <span class="n">migrations</span> <span class="n">bootstrap</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_DATABASE</span><span class="p">:</span> <span class="n">postgres</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_HOST</span><span class="p">:</span> <span class="n">localhost</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_PORT</span><span class="p">:</span> <span class="mi">5432</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_USER</span><span class="p">:</span> <span class="n">kong</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_PASSWORD</span><span class="p">:</span> <span class="n">kongpass</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">kong</span><span class="o">-</span><span class="n">database</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">condition</span><span class="p">:</span> <span class="n">service_healthy</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">on</span><span class="o">-</span><span class="n">failure</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">kong</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span><span class="p">:</span> <span class="n">kong</span><span class="p">:</span><span class="mf">3.4</span>
+</span></span><span class="line"><span class="cl">    <span class="n">container_name</span><span class="p">:</span> <span class="n">kong</span>
+</span></span><span class="line"><span class="cl">    <span class="n">network_mode</span><span class="p">:</span> <span class="s2">&#34;host&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">environment</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_DATABASE</span><span class="p">:</span> <span class="n">postgres</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_HOST</span><span class="p">:</span> <span class="n">localhost</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_PORT</span><span class="p">:</span> <span class="mi">5432</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_USER</span><span class="p">:</span> <span class="n">kong</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PG_PASSWORD</span><span class="p">:</span> <span class="n">kongpass</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PROXY_ACCESS_LOG</span><span class="p">:</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">stdout</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_ADMIN_ACCESS_LOG</span><span class="p">:</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">stdout</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PROXY_ERROR_LOG</span><span class="p">:</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">stderr</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_ADMIN_ERROR_LOG</span><span class="p">:</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">stderr</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_ADMIN_LISTEN</span><span class="p">:</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8001</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PROXY_LISTEN</span><span class="p">:</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8000</span><span class="p">,</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8443</span> <span class="n">ssl</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_STATUS_LISTEN</span><span class="p">:</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8100</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_PLUGINS</span><span class="p">:</span> <span class="n">bundled</span><span class="p">,</span><span class="n">prometheus</span><span class="p">,</span><span class="n">tcp</span><span class="o">-</span><span class="nb">log</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KONG_CUSTOM_PLUGINS</span><span class="p">:</span> <span class="n">tcp</span><span class="o">-</span><span class="nb">log</span>
+</span></span><span class="line"><span class="cl">    <span class="n">depends_on</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">kong</span><span class="o">-</span><span class="n">migration</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">condition</span><span class="p">:</span> <span class="n">service_completed_successfully</span>
+</span></span><span class="line"><span class="cl">    <span class="n">healthcheck</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">test</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;CMD&#34;</span><span class="p">,</span> <span class="s2">&#34;kong&#34;</span><span class="p">,</span> <span class="s2">&#34;health&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="n">interval</span><span class="p">:</span> <span class="mi">10</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">      <span class="n">timeout</span><span class="p">:</span> <span class="mi">10</span><span class="n">s</span>
+</span></span><span class="line"><span class="cl">      <span class="n">retries</span><span class="p">:</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">    <span class="n">restart</span><span class="p">:</span> <span class="n">unless</span><span class="o">-</span><span class="n">stopped</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">volumes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">kong_data</span><span class="p">:</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>monitor/kong/setup-logging.sh</p>
+<p>in this file, we define the script to configure TCP logging for Kong services.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Wait for Kong to be ready</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Waiting for Kong to be ready...&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> ! curl -s http://localhost:8001 &gt; /dev/null<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    sleep <span class="m">5</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Configure TCP logging for all services</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Configuring TCP logging for Kong...&#34;</span>
+</span></span><span class="line"><span class="cl">curl -X POST http://localhost:8001/plugins <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --data <span class="s2">&#34;name=tcp-log&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --data <span class="s2">&#34;config.host=localhost&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --data <span class="s2">&#34;config.port=5000&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --data <span class="s2">&#34;config.timeout=10000&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --data <span class="s2">&#34;config.keepalive=60000&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;TCP logging configuration complete!&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="start-monitoring-system">Start Monitoring System
+</h2><ol>
+<li>
+<p><code>docker compose up -d</code> to start the monitoring system.</p>
+</li>
+<li>
+<p><code>docker compose -f kong/docker-compose.yml up -d</code> to start the Kong API Gateway.</p>
+</li>
+<li>
+<p><code>./kong/setup-logging.sh</code> to configure TCP logging for Kong services.</p>
+</li>
+<li>
+<p>Login to Grafana at http://localhost:3000 then create prometheus data source and import dashboards.</p>
+</li>
+<li>
+<p>login to Kibana at http://localhost:5601 then create index pattern logstash-*</p>
+</li>
+</ol>
+<h2 id="result">Result
+</h2><p>Prometheus Dashboard
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus.png"
+	width="2910"
+	height="1408"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus_hu2613649291422501639.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus_hu2666160216187580672.png 1024w"
+	loading="lazy"
+	
+		alt="Prometheus Dashboard"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="206"
+		data-flex-basis="496px"
+	
+></p>
+<p>Grafana Linux Dashboard
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_linux_host.png"
+	width="2908"
+	height="1352"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_linux_host_hu8525690894097462300.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_linux_host_hu1437889899644022371.png 1024w"
+	loading="lazy"
+	
+		alt="Grafana Host Dashboard"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="215"
+		data-flex-basis="516px"
+	
+></p>
+<p>Grafana Docker Dashboard
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_docker.png"
+	width="2868"
+	height="1150"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_docker_hu3070748292616316417.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_docker_hu17106445016815921249.png 1024w"
+	loading="lazy"
+	
+		alt="Grafana Docker Dashboard"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="249"
+		data-flex-basis="598px"
+	
+></p>
+<p>Grafana Kong Dashboard
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_kong.png"
+	width="2888"
+	height="1408"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_kong_hu14184771088131333050.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/grafana_kong_hu15997879089451956041.png 1024w"
+	loading="lazy"
+	
+		alt="Grafana Kong Dashboard"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="205"
+		data-flex-basis="492px"
+	
+></p>
+<p>Prometheus Alert
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus_alert.png"
+	width="2902"
+	height="1398"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus_alert_hu16252349688422290195.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/prometheus_alert_hu11466942767326072382.png 1024w"
+	loading="lazy"
+	
+		alt="Prometheus Alert"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="207"
+		data-flex-basis="498px"
+	
+></p>
+<p>Prometheus Alertmanager
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/alert_manager.png"
+	width="2742"
+	height="1294"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/alert_manager_hu16888064271676206790.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/alert_manager_hu10723651254776678629.png 1024w"
+	loading="lazy"
+	
+		alt="Prometheus Alertmanager"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="211"
+		data-flex-basis="508px"
+	
+></p>
+<p>ELK Dashboard
+<img src="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/es.png"
+	width="2936"
+	height="1328"
+	srcset="/p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/es_hu11823240342026948983.png 480w, /p/setup-docker-env-monitor-using-elk-and-prometheus-grafana/es_hu9298546899185662810.png 1024w"
+	loading="lazy"
+	
+		alt="ELK Dashboard"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="221"
+		data-flex-basis="530px"
+	
+></p>
+<h2 id="summary">Summary
+</h2><p>In this example, we built a monitoring system for Docker environment using ELK and Prometheus-Grafana. We configured logging monitoring using ELK stack to monitor logs from Docker containers and metrics monitoring using Prometheus and Grafana to monitor Docker containers and linux host. We also configured alerting system using Prometheus Alertmanager to send alerts via email. Finally, we added Kong API Gateway as host entry and monitored its logs and metrics.</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/elk/">ELK</a>
+        
+            <a href="/tags/observability/">Observability</a>
+        
+            <a href="/tags/grafana/">Grafana</a>
+        
+            <a href="/tags/prometheus/">Prometheus</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            Last updated on Dec 15, 2024 00:00 UTC
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2023 - 
+        
+        2024 ByteLife Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.29.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.4eb7f214a300397284d715448b1e5dbacc7f6718274c93f79a613cd02dcd1bee.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

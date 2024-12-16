@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Categories on ByteLife Blog</title>
+        <link>https://bytelife-s.github.io/categories/</link>
+        <description>Recent content in Categories on ByteLife Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 08 Dec 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://bytelife-s.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Java</title>
+        <link>https://bytelife-s.github.io/categories/java/</link>
+        <pubDate>Sun, 08 Dec 2024 00:00:00 +0000</pubDate>
+        
+        <guid>https://bytelife-s.github.io/categories/java/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Debug</title>
+        <link>https://bytelife-s.github.io/categories/debug/</link>
+        <pubDate>Sat, 09 Mar 2024 00:00:00 +0000</pubDate>
+        
+        <guid>https://bytelife-s.github.io/categories/debug/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>
